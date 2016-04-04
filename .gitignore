@@ -1,3 +1,4 @@
 HostMe/bin/*
 HostMe/obj/*
+packages/*
 *.suo

@@ -12,6 +12,7 @@ namespace HostMe
         static void Main(string[] args)
         {
             Configuration configuration = null;
+            var defaultPort = 80;
             var configPath = Common.NormaliePath("config.json");
 
             if (args.Count() != 0)
@@ -35,8 +36,8 @@ namespace HostMe
 
                     if (configuration.Port == 0)
                     {
-                        Common.WriteLog("No configuration port found. using port 80");
-                        configuration.Port = 80;
+                        Common.WriteLog("No configuration port found. using port " + defaultPort);
+                        configuration.Port = defaultPort;
                     }
                 }
                 catch (Exception exception)
@@ -48,7 +49,7 @@ namespace HostMe
             if (configuration == null)
             {
                 Common.WriteLog("Using default configuration. Port = 80; Path = the exe path...");
-                configuration = new Configuration { Port = 80 };
+                configuration = new Configuration { Port = defaultPort };
             }
 
             var port = configuration.Port;

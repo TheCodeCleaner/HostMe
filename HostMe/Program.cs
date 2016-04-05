@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using log4net;
 using MicroService4Net;
 using Newtonsoft.Json;
 
@@ -9,46 +10,48 @@ namespace HostMe
 {
     class Program
     {
+        private static readonly ILog _logger = Logger.GetLogger();
+
         static void Main(string[] args)
         {
             Configuration configuration = null;
             var defaultPort = 80;
-            var configPath = Common.NormaliePath("config.json");
+            var configPath = PathNormalizer.NormaliePath("config.json");
 
             if (args.Count() != 0)
             {
                 var argsString = args.Aggregate((arg, current) => current + "," + arg);
-                Common.WriteLog("args = " + argsString);
+                _logger.Info("args = " + argsString);
             }
             else
-                Common.WriteLog("No args passed");
+                _logger.Info("No args passed");
 
 
             if (File.Exists(configPath))
             {
-                Common.WriteLog("Config found in " + configPath);
+                _logger.Info("Config found in " + configPath);
                 var jsonConfig = File.ReadAllText(configPath);
-                Common.WriteLog("The Config is: \n" + jsonConfig);
+                _logger.Info("The Config is: \n" + jsonConfig);
                 try
                 {
                     configuration = JsonConvert.DeserializeObject<Configuration>(jsonConfig);
-                    Common.WriteLog("Configuration parsed");
+                    _logger.Info("Configuration parsed");
 
                     if (configuration.Port == 0)
                     {
-                        Common.WriteLog("No configuration port found. using port " + defaultPort);
+                        _logger.Info("No configuration port found. using port " + defaultPort);
                         configuration.Port = defaultPort;
                     }
                 }
                 catch (Exception exception)
                 {
-                    Common.WriteLog("Exception occured in configuratin parsing: " + exception);
+                    _logger.Error("Exception occured in configuratin parsing", exception);
                 }
             }
 
             if (configuration == null)
             {
-                Common.WriteLog("Using default configuration. Port = 80; Path = the exe path...");
+                _logger.Info("Using default configuration. Port = 80; Path = the exe path...");
                 configuration = new Configuration { Port = defaultPort };
             }
 

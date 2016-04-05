@@ -35,6 +35,10 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MicroService4Net, Version=1.0.5575.22930, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MicroService4Net.1.0.5575.22930\lib\net45\MicroService4Net.dll</HintPath>
       <Private>True</Private>
@@ -76,11 +80,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common.cs" />
+    <Compile Include="PathNormalizer.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="InternalClassesForMicroService4Net.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StaticContentController.cs" />

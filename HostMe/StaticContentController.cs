@@ -6,11 +6,13 @@ using System.Net.Http.Headers;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using log4net;
 
 namespace HostMe
 {
     public class StaticContentController : ApiController
     {
+        private readonly ILog _logger = Logger.GetLogger();
         public static string SiteRootPath { private get; set; }
 
         [EnableCors("*", "*", "*")]
@@ -18,15 +20,14 @@ namespace HostMe
         public HttpResponseMessage GetContent(string path)
         {
             var requestId = Guid.NewGuid();
-
-            Common.WriteLog(requestId, "Got request. path = " + path);
+            _logger.Info("Got request. path = " + path);
             path = GetNormalizedPath(path);
-            Common.WriteLog(requestId, "Path normalized = " + path);
+            _logger.Info("Path normalized = " + path);
 
             try
             {
                 var content = File.ReadAllBytes(path);
-                Common.WriteLog(requestId, "Content read from: " + path);
+                _logger.Info("Content read from: " + path);
                 var response = new HttpResponseMessage
                 {
                     Content = new ByteArrayContent(content)
@@ -34,15 +35,15 @@ namespace HostMe
 
                 var mediaType = MimeMapping.GetMimeMapping(Path.GetFileName(path));
 
-                Common.WriteLog(requestId, "Media Type found = " + mediaType);
+                _logger.Info("Media Type found = " + mediaType);
                 response.Content.Headers.ContentType = new MediaTypeHeaderValue(mediaType);
-                Common.WriteLog(requestId, "Response sent!");
+                _logger.Info("Response sent!");
                 return response;
             }
             catch (Exception exception)
             {
-                Common.WriteLog(requestId, "Exception happend: " + exception);
-                Common.WriteLog(requestId, "Responding with Bad Request!");
+                _logger.Warn(path + " could not be parsed.", exception);
+                _logger.Warn("Responding with Bad Request!");
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
         }
@@ -55,7 +56,7 @@ namespace HostMe
             if (SiteRootPath != null)
                 path = SiteRootPath + @"\" + path;
 
-            path = Common.NormaliePath(path);
+            path = PathNormalizer.NormaliePath(path);
             return path;
         }
     }

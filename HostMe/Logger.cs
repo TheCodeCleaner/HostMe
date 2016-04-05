@@ -24,11 +24,14 @@ namespace HostMe
             hierarchy.Root.Level = Level.All;
             hierarchy.Configured = true;
 
-            var consoleAppender = CreateColoredConsoleAppender(patternLayout);
-            hierarchy.Root.AddAppender(consoleAppender);
-
             var rollingFileAppender = CreateRollingFileAppender(patternLayout);
             hierarchy.Root.AddAppender(rollingFileAppender);
+
+            if (!Environment.UserInteractive)
+                return;
+
+            var consoleAppender = CreateColoredConsoleAppender(patternLayout);
+            hierarchy.Root.AddAppender(consoleAppender);
         }
 
         private static IAppender CreateColoredConsoleAppender(ILayout layout)

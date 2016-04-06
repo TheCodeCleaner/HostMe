@@ -56,7 +56,7 @@ namespace HostMe
 
         private static IAppender CreateRollingFileAppender(ILayout layout)
         {
-            var logsFolder = PathNormalizer.NormaliePath("logs");
+            var logsFolder = PathNormalizer.NormalizePath("logs");
 
             if (!Directory.Exists(logsFolder))
                 Directory.CreateDirectory(logsFolder);

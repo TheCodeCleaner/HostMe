@@ -13,51 +13,57 @@ namespace HostMe
     public class StaticContentController : ApiController
     {
         private readonly ILog _logger = Logger.GetLogger();
-        public static string SiteRootPath { private get; set; }
+        public static string SiteRootPath { get; set; }
 
         [EnableCors("*", "*", "*")]
         [Route("{*path}")]
         public HttpResponseMessage GetContent(string path)
         {
-            var requestId = Guid.NewGuid();
             _logger.Info("Got request. path = " + path);
-            path = GetNormalizedPath(path);
-            _logger.Info("Path normalized = " + path);
+
+            var absolutePath = GetAbsolutePath(path);
+
+            _logger.Info("Absolute path = " + absolutePath);
 
             try
             {
-                var content = File.ReadAllBytes(path);
-                _logger.Info("Content read from: " + path);
-                var response = new HttpResponseMessage
-                {
-                    Content = new ByteArrayContent(content)
-                };
+                var response = PrepareResponseForPath(absolutePath);
 
-                var mediaType = MimeMapping.GetMimeMapping(Path.GetFileName(path));
-
-                _logger.Info("Media Type found = " + mediaType);
-                response.Content.Headers.ContentType = new MediaTypeHeaderValue(mediaType);
-                _logger.Info("Response sent!");
+                _logger.InfoFormat("Response for {0} sent!", path);
                 return response;
             }
             catch (Exception exception)
             {
-                _logger.Warn(path + " could not be parsed.", exception);
+                _logger.Warn(absolutePath + " could not be parsed.", exception);
                 _logger.Warn("Responding with Bad Request!");
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
         }
 
-        private static string GetNormalizedPath(string path)
+        private HttpResponseMessage PrepareResponseForPath(string path)
+        {
+            var content = File.ReadAllBytes(path);
+            _logger.Info("Content read from: " + path);
+
+            var mediaType = MimeMapping.GetMimeMapping(Path.GetFileName(path));
+            _logger.Info("Media Type found = " + mediaType);
+
+            var response = new HttpResponseMessage
+            {
+                Content = new ByteArrayContent(content)
+            };
+
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue(mediaType);
+
+            return response;
+        }
+
+        private static string GetAbsolutePath(string path)
         {
             if (path == null)
                 path = "index.html";
 
-            if (SiteRootPath != null)
-                path = SiteRootPath + @"\" + path;
-
-            path = PathNormalizer.NormaliePath(path);
-            return path;
+            return Path.Combine(SiteRootPath, path);
         }
     }
 }

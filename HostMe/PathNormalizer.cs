@@ -13,8 +13,11 @@ namespace HostMe
             RootPath = Path.GetDirectoryName(codeBase).Replace(@"file:\", "");
         }
 
-        public static string NormaliePath(string path)
+        public static string NormalizePath(string path)
         {
+            if (path == null)
+                path = string.Empty;
+
             return Path.IsPathRooted(path) ? path : Path.Combine(RootPath, path);
         }
     }

@@ -100,7 +100,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>$(SolutionDir)libz/libz.exe inject-dll -a HostMe.exe -i *.dll -e *sql* --move</PostBuildEvent>
+    <PostBuildEvent>if $(ConfigurationName) == Release $(SolutionDir)libz/libz.exe inject-dll -a HostMe.exe -i *.dll -e *sql* --move
+if $(ConfigurationName) == Release del *.xml
+if $(ConfigurationName) == Release del *.config
+if $(ConfigurationName) == Release del *.manifest</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

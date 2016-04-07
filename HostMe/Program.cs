@@ -11,7 +11,7 @@ namespace HostMe
     class Program
     {
         const int DEFAULT_PORT = 80;
-        private const string CONFIG_FILE_NAME = "config.json";
+        private const string CONFIG_FILE_NAME = "HostMe.config.json";
         private static readonly ILog Logger = HostMe.Logger.GetLogger();
 
         static void Main(string[] args)

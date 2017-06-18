@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -13,6 +14,10 @@ namespace HostMe
     public class StaticContentController : ApiController
     {
         private readonly ILog _logger = Logger.GetLogger();
+
+        private static readonly Dictionary<string, string> MediaTypesFixes 
+            = new Dictionary<string, string> { {".svg", "image/svg+xml" } };
+
         public static string SiteRootPath { get; set; }
 
         [EnableCors("*", "*", "*")]
@@ -45,7 +50,12 @@ namespace HostMe
             var content = File.ReadAllBytes(path);
             _logger.Info("Content read from: " + path);
 
-            var mediaType = MimeMapping.GetMimeMapping(Path.GetFileName(path));
+            var filePath = Path.GetFileName(path);
+            var extension = Path.GetExtension(filePath);
+            var mediaType = MimeMapping.GetMimeMapping(filePath);
+            if (MediaTypesFixes.ContainsKey(extension))
+                mediaType = MediaTypesFixes[extension];
+
             _logger.Info("Media Type found = " + mediaType);
 
             var response = new HttpResponseMessage

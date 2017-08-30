@@ -47,16 +47,18 @@ namespace HostMe
 
         private HttpResponseMessage PrepareResponseForPath(string path)
         {
-            var content = File.ReadAllBytes(path);
-            _logger.Info("Content read from: " + path);
+            var extension = Path.GetExtension(path);
 
-            var filePath = Path.GetFileName(path);
-            var extension = Path.GetExtension(filePath);
-            var mediaType = MimeMapping.GetMimeMapping(filePath);
+            path = HandleNotExistingHtmlFile(path, extension);
+
+            var mediaType = MimeMapping.GetMimeMapping(path);
             if (MediaTypesFixes.ContainsKey(extension))
                 mediaType = MediaTypesFixes[extension];
 
             _logger.Info("Media Type found = " + mediaType);
+
+            var content = File.ReadAllBytes(path);
+            _logger.Info("Content read from: " + path);
 
             var response = new HttpResponseMessage
             {
@@ -66,6 +68,20 @@ namespace HostMe
             response.Content.Headers.ContentType = new MediaTypeHeaderValue(mediaType);
 
             return response;
+        }
+
+        private string HandleNotExistingHtmlFile(string path, string extension)
+        {
+            if (File.Exists(path))
+                return path;
+
+            if (extension != "" && extension != ".html")
+                return path;
+
+            var newPath = Path.Combine(SiteRootPath, "index.html");
+            _logger.Info($"Path {path} was not foud, normalized to: {newPath}");
+                
+            return newPath;
         }
 
         private static string GetAbsolutePath(string path)
